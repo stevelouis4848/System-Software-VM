@@ -1,0 +1,40 @@
+Structures:
+  struct to ghold the instruction code and it parameters(OP,Reg,L,M)
+      typedef struct instruction{
+                                  7 0 0 19 int op; /* opcode
+                                  6 0 0 4 int r; /* reg
+                                  3 0 1 4 int l; /* L
+                                  3 1 1 5 int m; /* M
+                                  13 1 0 1 }instruction;
+Functions:
+  Fetch/read inout file
+  partition
+  Decode
+  Operations
+  ALU
+  Write Memory
+  Read Memory
+  write regisater
+  read register
+   PC update
+   Stack
+   
+ Variables
+    Global Constants:MAX_STACK_HEIGHT is 2000
+                      MAX_CODE_LENGTH is 500
+                      MAX_LEXI_LEVELS is 3
+  
+  Output Expected:
+  
+      OP   Rg Lx Vl[ PC BP SP]
+        LIT   7  0 10[  1  1  0] 
+      	Registers:[  0  0  0  0  0  0  0 10]
+        
+      1.)OP abbravieation
+      2.)Register
+      3.)Lx
+      4.)V1
+      5.)Program counter
+      6.)Base point
+      7.)Stack pointer     
+      8.)Contents of the Registers
