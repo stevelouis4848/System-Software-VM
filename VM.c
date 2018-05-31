@@ -5,9 +5,10 @@ int MAX_STACK_HEIGHT = 2000;
 int MAX_CODE_LENGTH = 500;
 int MAX_LEXI_LEVELS = 3;
 
-char *opCode[] = {"NULL", "lit", "lod", "sto", "cal", "inc", "jmp",
-                    "jpc", "sio", "neg", "add", "sub", "mul", "div", "odd",
-                    "mod", "eql", "neq", "lss", "leq", "gtr", "geq"};
+char *opCode[] = {"NULL", "lit", "lod", "sto", "cal", "inc", "jmp","jpc", "sio",
+                  "neg", "add", "sub", "mul", "div", "odd","mod", "eql", "neq",
+                  "lss", "leq", "gtr", "geq"};
+
 typedef struct instruction{
                  int op; // opcode
                  int r; // reg
@@ -34,7 +35,7 @@ int base(l, base) // l stand for L in the instruction format
    return b1;
 }
 
-fetch(char* fileName){
+void fetch(char* fileName){
 
  enviroment *env;
  int *stack;
@@ -48,13 +49,13 @@ fetch(char* fileName){
  env->pc = 0;
 
  ifp = fopen("fileName", "r");
- ofp =fopen("factOpPrint", "w");
+ ofp = fopen("factOpPrint", "w");
 
- for (i=0; i<MAX_STACK_HEIGHT; i++){
+  for (i=0; i<MAX_STACK_HEIGHT; i++){
 
-       stack[i] = malloc(sizeof(int));
-       stack[i] = 0;
-     }
+        stack[i] = malloc(sizeof(int));
+        stack[i] = 0;
+  }
 
  while( fscanf(ifp, "%d,%d,%d",env->ir.op, env->ir.r, env->ir.l,
                env->ir.m)) != EOF ){
@@ -131,7 +132,7 @@ void OPR(enviroment *env, int *stack){
 main(){
   for(i=1; i < argc; i++)
   {
-      fetch(argv[i]);
+    fetch(argv[i]);
   }
   return 0;
 }
