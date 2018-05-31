@@ -44,44 +44,43 @@ int base(l, base) // l stand for L in the instruction format
 
 fetch(char* fileName){
 
-enviroment *env;
-int *stack;
+  enviroment *env;
+  int *stack;
+  FILE *ifp;
+  FILE *ofp;
 
+  env = malloc(sizeof(enviroment));
 
-    FILE *ifp;
-    FILE *ofp;
+  env->sp = 0;
+  env->bp = 1;
+  env->pc = 0;
 
-    ifp = fopen("fileName", "r");
-    ofp =fopen("factOpPrint", "w");
-    ofp2 =
+  ifp = fopen("fileName", "r");
+  ofp =fopen("factOpPrint", "w");
 
-    env->sp = 0;
-    env->bp = 1;
-    env->pc = 0;
-    for (i=0; i<MAX_STACK_HEIGHT; i++){
+  for (i=0; i<MAX_STACK_HEIGHT; i++){
 
-          stack[i] = malloc(sizeof(int));
-          stack[i] = 0;
-        }
+        stack[i] = malloc(sizeof(int));
+        stack[i] = 0;
+      }
 
+  while( fscanf(ifp, "%d,%d,%d",env->ir.op, env->ir.r, env->ir.l,
+                env->ir.m)) != EOF ){
 
+    fprintf(ofp,"%s %d %d %d",opCode[env->ir.op],env->ir.r, env->ir.l,
+            env->ir.m);
+    env->pc+1;
+    execute(env,stack);
 
-
-    while( fscanf(ifp, "%d,%d,%d",env->ir.op, env->ir.r, env->ir.l,
-                  env->ir.m)) != EOF ){
-
-      fprintf(ofp,"%s %d %d %d",opCode[env->ir.op],env->ir.r, env->ir.l,
-              env->ir.m);
-      execute(env);
-    }
-    fclose(ifp);
-    fclose(ofp);
+  }
+  fclose(ifp);
+  fclose(ofp);
 }
 
 execute(enviroment *env,int *stack){
 
   if(env->ir.op > 10){
-      OPR(env);
+      OPR(env,stack);
       }
 
 switch (env->ir.op) {
