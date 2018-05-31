@@ -33,7 +33,7 @@ main(){
 int base(l, base) // l stand for L in the instruction format
 {
   int b1; //find base L levels down
-  b1 = base;   
+  b1 = base;
 
   while (l > 0){
     b1 = stack[b1 + 1];
@@ -51,21 +51,26 @@ int *stack;
     FILE *ifp;
     FILE *ofp;
 
-    ifp = fopen("fileName","r");
-    ofp =fopen("factOpPrint","w");
+    ifp = fopen("fileName", "r");
+    ofp =fopen("factOpPrint", "w");
     ofp2 =
 
-    for (i=0;i<MAX_STACK_HEIGHT;i++){
+    env->sp = 0;
+    env->bp = 1;
+    env->pc = 0;
+    for (i=0; i<MAX_STACK_HEIGHT; i++){
 
           stack[i] = malloc(sizeof(int));
           stack[i] = 0;
         }
 
 
-    while( fscanf(ifp, "%d,%d,%d",env->ir.op,env->ir.r,env->ir.l
+
+
+    while( fscanf(ifp, "%d,%d,%d",env->ir.op, env->ir.r, env->ir.l,
                   env->ir.m)) != EOF ){
 
-      fprintf(ofp,"%s %d %d %d",opCode[env->ir.op],env->ir.r,env->ir.l,
+      fprintf(ofp,"%s %d %d %d",opCode[env->ir.op],env->ir.r, env->ir.l,
               env->ir.m);
       execute(env);
     }
@@ -73,7 +78,7 @@ int *stack;
     fclose(ofp);
 }
 
-execute(enviroment *env){
+execute(enviroment *env,int *stack){
 
   if(env->ir.op > 10){
       OPR(env);
@@ -104,7 +109,7 @@ switch (env->ir.op) {
 
 }
 
-OPR(){
+OPR(enviroment *env, int *stack){
 
   switch(env->ir.op){
     case 11:
