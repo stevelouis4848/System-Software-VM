@@ -22,118 +22,116 @@ typedef struct enviroment{
                  instruction ir; // M
                }enviroment;
 
-main(){
-    for(i=1; i < argc; i++)
-    {
-        fetch(argv[i]);
-    }
-    return 0;
-}
-
 int base(l, base) // l stand for L in the instruction format
 {
-  int b1; //find base L levels down
-  b1 = base;
+ int b1; //find base L levels down
+ b1 = base;
 
-  while (l > 0){
-    b1 = stack[b1 + 1];
-    l- -;
-  }
-    return b1;
+ while (l > 0){
+   b1 = stack[b1 + 1];
+   l- -;
+ }
+   return b1;
 }
 
 fetch(char* fileName){
 
-  enviroment *env;
-  int *stack;
-  FILE *ifp;
-  FILE *ofp;
+ enviroment *env;
+ int *stack;
+ FILE *ifp;
+ FILE *ofp;
 
-  env = malloc(sizeof(enviroment));
+ env = malloc(sizeof(enviroment));
 
-  env->sp = 0;
-  env->bp = 1;
-  env->pc = 0;
+ env->sp = 0;
+ env->bp = 1;
+ env->pc = 0;
 
-  ifp = fopen("fileName", "r");
-  ofp =fopen("factOpPrint", "w");
+ ifp = fopen("fileName", "r");
+ ofp =fopen("factOpPrint", "w");
 
-  for (i=0; i<MAX_STACK_HEIGHT; i++){
+ for (i=0; i<MAX_STACK_HEIGHT; i++){
 
-        stack[i] = malloc(sizeof(int));
-        stack[i] = 0;
-      }
+       stack[i] = malloc(sizeof(int));
+       stack[i] = 0;
+     }
 
-  while( fscanf(ifp, "%d,%d,%d",env->ir.op, env->ir.r, env->ir.l,
-                env->ir.m)) != EOF ){
+ while( fscanf(ifp, "%d,%d,%d",env->ir.op, env->ir.r, env->ir.l,
+               env->ir.m)) != EOF ){
 
-    fprintf(ofp,"%s %d %d %d",opCode[env->ir.op],env->ir.r, env->ir.l,
-            env->ir.m);
-    env->pc+1;
-    execute(env,stack);
-
+   fprintf(ofp,"%s %d %d %d",opCode[env->ir.op],env->ir.r, env->ir.l,
+           env->ir.m);
+   env->pc+1;
+   execute(env,stack);
   }
-  fclose(ifp);
-  fclose(ofp);
+ fclose(ifp);
+ fclose(ofp);
 }
 
-execute(enviroment *env,int *stack){
+void execute(enviroment *env,int *stack){
 
   if(env->ir.op > 10){
-      OPR(env,stack);
-      }
+     OPR(env,stack);
+     return;
+     }
 
-switch (env->ir.op) {
-    case 01:
-        break;
-    case 02:
-        break;
-    case 03:
-        break;
-    case 04:
-        break;
-    case 05:
-        break;
-    case 06:
-        break;
-    case 07:
-        break;
-    case 08:
-        break;
-    case 09:
-        break;
-    case 10:
-        break;
-  }
-
+  switch (env->ir.op) {
+     case 01:
+         break;
+     case 02:
+         break;
+     case 03:
+         break;
+     case 04:
+         break;
+     case 05:
+         break;
+     case 06:
+         break;
+     case 07:
+         break;
+     case 08:
+         break;
+     case 09:
+         break;
+     case 10:
+         break;
+    }
 }
 
-OPR(enviroment *env, int *stack){
+void OPR(enviroment *env, int *stack){
 
   switch(env->ir.op){
     case 11:
-        break;
+       break;
     case 12:
-        break;
+       break;
     case 13:
-        break;
+       break;
     case 14:
-        break;
+       break;
     case 15:
-        break;
+       break;
     case 16:
-        break;
+       break;
     case 17:
-        break;
+       break;
     case 18:
-        break;
+       break;
     case 19:
-        break;
+       break;
     case 20:
-        break;
+       break;
     case 21:
-        break;
+       break;
     case 22:
-        break;
+       break;
     }
+}
+main(){
+  for(i=1; i < argc; i++)
+  {
+      fetch(argv[i]);
+  }
+  return 0;
 }
