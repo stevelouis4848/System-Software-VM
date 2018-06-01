@@ -205,7 +205,7 @@ void opr(enviroment *env, int *stack){
 main(){
   for(i=1; i < argc; i++)
   {
-    fetch(argv[i]);
+    vm(argv[i]);
   }
   return 0;
 }
