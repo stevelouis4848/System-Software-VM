@@ -70,11 +70,8 @@ void vm (char* fileName){
             i++;
         }
 
-        fetch(env, irList);
-        execute(env,stack);
-
-    execute(env,stack);
-
+  fetch(env, irList);
+  execute(env,stack);
  fclose(ifp);
  fclose(ofp);
 }
@@ -205,7 +202,7 @@ void opr(enviroment *env, int *stack){
 main(){
   for(i=1; i < argc; i++)
   {
-    vm(argv[i]);
+    fetch(argv[i]);
   }
   return 0;
 }
