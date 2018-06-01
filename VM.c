@@ -20,7 +20,7 @@ typedef struct enviroment{
                  int pc; // opcode
                  int bp; // reg
                  int sp; // L
-                 instruction ir[MAX_CODE_LENGTH]; // M
+                 instruction ir; // M
                }enviroment;
 
 int base(l, base) // l stand for L in the instruction format
@@ -35,14 +35,14 @@ int base(l, base) // l stand for L in the instruction format
    return b1;
 }
 
-void fetch(char* fileName){
+void vm (char* fileName){
 
+ instruction *irList;
  enviroment *env;
- int *stack;
- int i = 0;
- FILE *ifp;
- FILE *ofp;
+ int *stack, i = 0, buff, buff2, buff3, buff4;
+ FILE *ifp,*ofp;
 
+ irList = malloc( * sizeof(instruction))
  env = malloc(sizeof(enviroment));
 
  env->sp = 0;
@@ -58,30 +58,33 @@ void fetch(char* fileName){
         stack[i] = 0;
   }
 
-  while( fscanf(ifp, "%d,%d,%d", env->ir[i].op, env->ir[i].r,
-                env->ir[i].l, env->ir[i].m)) != EOF){
+  while( fscanf(ifp, "%d,%d,%d,%d",buff, buff1,
+                buff2, buff3,buff4)) != EOF){
 
-          fprintf(ofp,"%s %d %d %d",opCode[env->ir[i].op],
-                  env->ir[i].r, env->ir.l, env->ir[i].m);
-          i++;
+            irList[i] = malloc(sizeof(instruction));
 
-
-          execute(env,stack);
+            irList[i]->op = buff;
+            irList[i]->r = buff2;
+            irList[i]->l = buff3;
+            irList[i]->m = buff4;
+            i++;
         }
 
-        while
+        fetch(env, irList);
+        execute(env,stack);
 
-    env->pc+1;
     execute(env,stack);
 
  fclose(ifp);
  fclose(ofp);
 }
 
-void fetch(enviroment *env){
+void fetch(enviroment *env, instruction *irList){
 
+    env->ir = irList[env->pc];
 
-
+    fprintf(ofp,"%s %d %d %d \n",opCode[env->ir.op],env->ir.r,env->ir.l,
+            env->ir.m);
 }
 void execute(enviroment *env,int *stack){
 
