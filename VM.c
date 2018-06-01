@@ -18,12 +18,12 @@ typedef struct instruction{
 
 typedef struct enviroment{
 							int pc; // opcode
-							int env->bp; // reg
-							int env->sp; // L
+							int bp; // reg
+							int sp; // L
 							instruction ir; // M
 					}enviroment;
 
-int base(l, base) // l stand for L in the instruction format
+int base(int l, int base,int *stack) // l stand for L in the instruction format
 {
 	int b1; //find base L levels down
 	b1 = base;
@@ -37,12 +37,13 @@ int base(l, base) // l stand for L in the instruction format
 
 void vm (char* fileName){
 
+	int *stack[MAX_STACK_HEIGHT]= {0};
 	instruction *irList;
 	enviroment *env;
 	int *stack, i = 0, buff, buff2, buff3, buff4;
 	FILE *ifp,*ofp;
 
-	irList = malloc( * sizeof(instruction));
+	irList = malloc( MAX_CODE_LENGTH * sizeof(instruction));
 	env = malloc(sizeof(enviroment));
 
 	env->sp = 0;
@@ -51,12 +52,6 @@ void vm (char* fileName){
 
 	ifp = fopen("fileName", "r");
 	ofp = fopen("factOpPrint", "w");
-
-	for (i=0; i<MAX_STACK_HEIGHT; i++){
-
-		stack[i] = malloc(sizeof(int));
-		stack[i] = 0;
-	}
 
 	while( fscanf(ifp, "%d,%d,%d,%d",buff,
 					buff2, buff3,buff4)) != EOF){
