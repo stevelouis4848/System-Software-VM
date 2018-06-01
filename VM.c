@@ -37,14 +37,15 @@ int base(int l, int base,int *stack) // l stand for L in the instruction format
 
 void vm (char* fileName){
 
-	int *stack[MAX_STACK_HEIGHT]= {0};
+	
 	instruction *irList;
 	enviroment *env;
-	int *stack, i = 0, buff, buff2, buff3, buff4;
+	int *stack,i = 0, buff[3];
 	FILE *ifp,*ofp;
 
 	irList = malloc( MAX_CODE_LENGTH * sizeof(instruction));
 	env = malloc(sizeof(enviroment));
+	stack = malloc(MAX_STACK_HEIGHT * sizeof(int));
 
 	env->sp = 0;
 	env->bp = 1;
@@ -53,24 +54,22 @@ void vm (char* fileName){
 	ifp = fopen("fileName", "r");
 	ofp = fopen("factOpPrint", "w");
 
-	while( fscanf(ifp, "%d,%d,%d,%d",buff,
-					buff2, buff3,buff4)) != EOF){
+	while( fscanf(ifp, "%d,%d,%d,%d",&buff[0],
+					&buff[1],&buff[2],&buff[3]) != EOF){
 
-		irList[i] = malloc(sizeof(instruction));
-
-		irList[i]->op = buff;
-		irList[i]->r = buff2;
-		irList[i]->l = buff3;
-		irList[i]->m = buff4;
+		irList[i].op = buff[0];
+		irList[i].r = buff[1];
+		irList[i].l = buff[2];
+		irList[i].m = buff[3];
 		i++;
 	}
 
-	while (env->bp != 0){}
+	while (env->bp != 0){
 
 		fetch(env, irList);
 		execute(env,stack);
-		printStackFrame(1,stack,env,ofp)
-		printStackFrame(2,stack,env,ofp2)
+		printStackFrame(1,stack,env,ofp);
+		printStackFrame(2,stack,env,ofp2);
 	}
 
 	fclose(ifp);
@@ -191,7 +190,7 @@ void opr(enviroment *env, int *stack){
 			break;
 		case 21: //GTR
 			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]>stack[env->sp+1]
+			stack[env->sp]=stack[env->sp]>stack[env->sp+1];
 			break;
 		case 22: //GEQ
 			env->sp=env->sp-1;
@@ -205,7 +204,7 @@ void printStackFrame(int printValue,int *stack, enviroment *env, FILE *ofp) {
 
 		case 1:
 				fprintf(ofp,"%s %d %d %d \n",opCode[env->ir.op],env->ir.r,env->ir.l,
-												env->ir.m);
+						env->ir.m);
 		break;
 
 		case 2:
