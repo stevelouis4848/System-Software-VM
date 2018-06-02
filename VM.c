@@ -30,7 +30,7 @@ void vm (char* fileName);
 void fetch(enviroment *env, instruction *irList, FILE *ofp);
 void execute(enviroment *env,int *stack);
 void opr(enviroment *env, int *stack);
-void printStackFrame(int printValue,int *stack, enviroment *env, FILE *ofp);
+void printStackFrame(int *stack, enviroment *env, FILE *ofp);
 
 
 int main(int argc, char **argv){
@@ -48,7 +48,7 @@ void vm (char *fileName){
 	instruction *irList;
 	enviroment *env;
 	int *stack,i = 0, buff[3];
-	FILE *ifp, *ofp, *ofp2;
+	FILE *ifp, *ofp, *ofp2, *ofp3;
 
 	irList = malloc( MAX_CODE_LENGTH * sizeof(instruction));
 	env = malloc(sizeof(enviroment));
@@ -61,14 +61,19 @@ void vm (char *fileName){
 	ifp = fopen(fileName, "r");
 	ofp = fopen("factOpPrint.txt", "w");
 	ofp2 = fopen("stackTracePrint.txt", "w");
+	ofp3 = fopen("factPrint.txt", "w");
 	
 	
 	if(ifp == NULL || ofp == NULL)
 	{
-		printf("Invalid file pointers");
+		printf("Invalid file pointer");
 		return;
 	}
 
+	fprintf(ofp,"Factorial Op Printout:\n");
+	fprintf(ofp2,"Factorial Stack Trace:\n");
+	fprintf(ofp3,"Factorial Output:\n");
+	
 	while( fscanf(ifp, "%d %d %d %d",&buff[0],
 					&buff[1],&buff[2],&buff[3]) != EOF){
 
@@ -80,17 +85,17 @@ void vm (char *fileName){
 		i++;
 	}
 
-	//while (env->bp != 0){
-
-		fetch(env, irList);
-		//execute(env,stack);
-		// printStackFrame(2,stack,env,ofp2);
+	//while (env->bp != 0){		
+		fetch(env, irList, ofp);
+		//execute(env, stack);
+		//printStackFrame(stack, env, ofp2);
 	//}
 	
 	
 	fclose(ifp);
 	fclose(ofp);
 	fclose(ofp2);
+	fclose(ofp3);
 	
 }
 
@@ -98,7 +103,7 @@ void fetch(enviroment *env, instruction *irList, FILE *ofp){
 
 	env->ir = irList[env->pc];
 	
-	fprintf(ofp," %d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
+	fprintf(ofp,"%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
 					env->ir.m);
 					
 	env->pc++;
@@ -234,7 +239,7 @@ int base(int l, int base,int *stack) // l stand for L in the instruction format
 			return b1;
 }
 
-/*void printStackFrame(int printValue,int *stack, enviroment *env, FILE *ofp) {
+/*void printStackFrame(int *stack, enviroment *env, FILE *ofp) {
 	
 	int i = 0;
 
@@ -254,7 +259,7 @@ int base(int l, int base,int *stack) // l stand for L in the instruction format
 	}
 		//Recursive Case: Prints out each new stack frame, separating them with |
 	else {
-	printStackFrame(2,stack, env->bp-1, stack[env->bp+2], ofp);
+	printStackFrame(stack, env->bp-1, stack[env->bp+2], ofp);
 
 		//Covers one case, where CAL instruction is just called, meaning a new Stack Frame is created, but env->sp is still less than env->bp
 		if (env->sp<env->bp) {

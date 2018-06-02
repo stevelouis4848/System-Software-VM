@@ -1,22 +1,2 @@
- 0 jmp 0 0 6 
- 1 lit 0 0 3 
- 2 cal 0 0 4 
- 3 lit 0 0 1 
- 4 cal 0 0 5 
- 5 inc 0 0 7 
- 6 jpc 0 0 19 
- 7 jmp 0 0 4 
- 8 sto 0 1 4 
- 9 sto 1 1 5 
- 10 div 1 0 1 
- 11 cal 1 1 5 
- 12 lit 1 0 1 
- 13 mul 0 0 1 
- 14 cal 0 1 4 
- 15 lss 0 0 1 
- 16 sio 0 0 18 
- 17 inc 0 1 7 
- 18 lod 0 0 0 
- 19 sto 0 0 5 
- 20 neg 0 0 1 
- 21 neg 0 0 3 
+Factorial Op Printout:
+0 jmp 0 0 6 
