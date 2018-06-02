@@ -204,7 +204,7 @@ void printStackFrame(int printValue,int *stack, enviroment *env, FILE *ofp) {
 
 		case 1:
 				fprintf(ofp,"%s %d %d %d \n",opCode[env->ir.op],env->ir.r,env->ir.l,
-						env->ir.m);
+						env->ir.m);  
 		break;
 
 		case 2:
