@@ -27,7 +27,7 @@ typedef struct enviroment{
 					
 int base(int l, int base,int *stack);
 void vm (char* fileName);
-void fetch(enviroment *env, instruction *irList);
+void fetch(enviroment *env, instruction *irList, FILE *ofp);
 void execute(enviroment *env,int *stack);
 void opr(enviroment *env, int *stack);
 void printStackFrame(int printValue,int *stack, enviroment *env, FILE *ofp);
@@ -69,38 +69,38 @@ void vm (char *fileName){
 		return;
 	}
 
-	while( fscanf(ifp, "%d,%d,%d,%d",&buff[0],
+	while( fscanf(ifp, "%d %d %d %d",&buff[0],
 					&buff[1],&buff[2],&buff[3]) != EOF){
 
 		irList[i].op = buff[0];
 		irList[i].r = buff[1];
 		irList[i].l = buff[2];
 		irList[i].m = buff[3];
-		i++;
 		
-		printf(ofp,"%s %d %d %d \n",irList[i].op,irList[i].r,irList[i].l,
-						irList[i].m);  
+		i++;
 	}
 
 	//while (env->bp != 0){
 
 		fetch(env, irList);
-		fprintf(ofp,"%s %d %d %d \n",opCode[env->ir.op],env->ir.r,env->ir.l,
-						env->ir.m);  
 		//execute(env,stack);
-		// printStackFrame(1,stack,env,ofp);
 		// printStackFrame(2,stack,env,ofp2);
 	//}
-
+	
+	
 	fclose(ifp);
 	fclose(ofp);
 	fclose(ofp2);
 	
 }
 
-void fetch(enviroment *env, instruction *irList){
+void fetch(enviroment *env, instruction *irList, FILE *ofp){
 
 	env->ir = irList[env->pc];
+	
+	fprintf(ofp," %d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
+					env->ir.m);
+					
 	env->pc++;
 	
 }
@@ -238,58 +238,48 @@ int base(int l, int base,int *stack) // l stand for L in the instruction format
 	
 	int i = 0;
 
-	switch (printValue){
-
-		case 1:
-				fprintf(ofp,"%s %d %d %d \n",opCode[env->ir.op],env->ir.r,env->ir.l,
-						env->ir.m);  
-		break;
-
-		case 2:
-			//Base Case #1: if env->bp is 0, the program has finished. No stack frames are left to print out
-			if (env->bp==0) {
-			return;
-			}
-			//Base Case #2: if env->bp is 1, then it is in the main stack frame, and we print out the stack from env->bp to env->sp, with env->bp pointing to the bottom of the main stack frame, and env->sp pointing to the top of the stack
-			else if (env->bp==1) {
-
-			for(i=1;i<=env->sp;i++){
-				fprintf(ofp, "%d ",stack[i]);
-
-				//fprintf(ofp3, "%d ",stack[i]);
-			}
-			return;
-			}
-				//Recursive Case: Prints out each new stack frame, separating them with |
-			else {
-			printStackFrame(2,stack, env->bp-1, stack[env->bp+2], ofp);
-
-				//Covers one case, where CAL instruction is just called, meaning a new Stack Frame is created, but env->sp is still less than env->bp
-				if (env->sp<env->bp) {
-					fprintf(ofp, "| ");
-
-					//fprintf(ofp3, "| ");
-
-					for (i=0;i<4;i++) {
-						fprintf(ofp, "%d ", stack[env->bp+i]);
-
-						//fprintf(ofp3, "%d ", stack[env->bp+i]);
-					}
-				}
-				//For env->sp being greater than env->bp, aka most cases
-				else {
-					fprintf(ofp, "| ");
-
-					//fprintf(ofp3, "| ");
-					for (i=env->bp;i<=env->sp;i++) {
-						fprintf(ofp, "%d ", stack[i]);
-
-						//fprintf(ofp3, "%d ", stack[i]);
-					}
-				}
-			return;
-			}
-	break;
+	//Base Case #1: if env->bp is 0, the program has finished. No stack frames are left to print out
+	if (env->bp==0) {
+	return;
 	}
+	//Base Case #2: if env->bp is 1, then it is in the main stack frame, and we print out the stack from env->bp to env->sp, with env->bp pointing to the bottom of the main stack frame, and env->sp pointing to the top of the stack
+	else if (env->bp==1) {
+
+	for(i=1;i<=env->sp;i++){
+		fprintf(ofp, "%d ",stack[i]);
+
+		//fprintf(ofp3, "%d ",stack[i]);
+	}
+	return;
+	}
+		//Recursive Case: Prints out each new stack frame, separating them with |
+	else {
+	printStackFrame(2,stack, env->bp-1, stack[env->bp+2], ofp);
+
+		//Covers one case, where CAL instruction is just called, meaning a new Stack Frame is created, but env->sp is still less than env->bp
+		if (env->sp<env->bp) {
+			fprintf(ofp, "| ");
+
+			//fprintf(ofp3, "| ");
+
+			for (i=0;i<4;i++) {
+				fprintf(ofp, "%d ", stack[env->bp+i]);
+
+				//fprintf(ofp3, "%d ", stack[env->bp+i]);
+			}
+		}
+		//For env->sp being greater than env->bp, aka most cases
+		else {
+			fprintf(ofp, "| ");
+
+			//fprintf(ofp3, "| ");
+			for (i=env->bp;i<=env->sp;i++) {
+				fprintf(ofp, "%d ", stack[i]);
+
+				//fprintf(ofp3, "%d ", stack[i]);
+			}
+		}
+	return;
+	}	
 }
 */
