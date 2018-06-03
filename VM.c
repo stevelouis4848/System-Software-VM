@@ -5,11 +5,9 @@ int MAX_STACK_HEIGHT = 2000;
 int MAX_CODE_LENGTH = 500;
 int MAX_LEXI_LEVELS = 3;
 
-int halt = 0;
-
-char *opCode[] = {"NULL", "lit", "lod", "sto", "cal", "inc", "jmp","jpc", "sio",
-					"neg", "add", "sub", "mul", "div", "odd","mod", "eql", "neq",
-					"lss", "leq", "gtr", "geq"};
+char *opCode[] = {"NULL", "LIT", "RTN", "LOD", "STO", "CAL", "INC", "JMP","JPC", "SIO",
+					"NEG", "ADD", "SUB", "MUL", "DIV", "ODD","MOD", "EQL", "NEQ",
+					"LSS", "LEQ", "GTR", "GEQ"};
 
 typedef struct instruction{
 							int op; // opcode
@@ -28,7 +26,7 @@ typedef struct enviroment{
 int base(int l, int base,int *stack);
 void vm (char* fileName);
 void fetch(enviroment *env, instruction *irList, FILE *ofp);
-void execute(enviroment *env,int *stack);
+void execute(enviroment *env,int *stack,int *halt);
 void opr(enviroment *env, int *stack);
 void printStackFrame(int *stack, enviroment *env, FILE *ofp);
 
@@ -47,17 +45,19 @@ void vm (char *fileName){
 	
 	instruction *irList;
 	enviroment *env;
-	int *stack,i = 0, buff[3];
+	int *stack,i = 0, buff[3],*halt;
 	FILE *ifp, *ofp, *ofp2, *ofp3;
 
 	irList = malloc( MAX_CODE_LENGTH * sizeof(instruction));
 	env = malloc(sizeof(enviroment));
 	stack = malloc(MAX_STACK_HEIGHT * sizeof(int));
+	halt = malloc(sizeof(int));
 
 	env->sp = 0;
 	env->bp = 1;
 	env->pc = 0;
-
+	*halt = 0;
+	
 	ifp = fopen(fileName, "r");
 	ofp = fopen("factOpPrint.txt", "w");
 	ofp2 = fopen("stackTracePrint.txt", "w");
@@ -85,9 +85,10 @@ void vm (char *fileName){
 		i++;
 	}
 
-	while (env->bp != 0 || halt != 1){		
+	while (*halt != 1 ){
+		
 		fetch(env, irList, ofp);
-		execute(env, stack);
+		execute(env, stack, halt);
 		//printStackFrame(stack, env, ofp2);
 	}
 	
@@ -102,16 +103,18 @@ void fetch(enviroment *env, instruction *irList, FILE *ofp){
 
 	env->ir = irList[env->pc];
 	
-	fprintf(ofp,"%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
+	//fprintf(ofp,"%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
+					//env->ir.m);
+	printf("%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
 					env->ir.m);
 					
 	env->pc++;
 	
 }
 
-void execute(enviroment *env,int *stack){
+void execute(enviroment *env,int *stack, int *halt){
 
-	if(env->ir.op > 10){
+	if(env->ir.op >= 10){
 		opr(env,stack);
 		return;
 	}
@@ -157,24 +160,23 @@ void execute(enviroment *env,int *stack){
 		case 9: //SIO
 			switch (env->ir.m) {
 				case 1://SIO1
-					printf("%d\n", stack[env->sp]);
+					printf("%d----\n", stack[env->sp]);
 					env->sp--;
 					break;
 				case 2://SIO2
 					env->sp++;
 					scanf("%d", &stack[env->sp]);
 					break;
-
 				case 3://SIO3
-					halt = 1;
-					env->bp = 0;
+					*halt = 1;
+					printf("PROGRAM HALTED\n");
 					break;
 				default:
-				printf("Invalid m for SIO");
+				printf("Invalid m for SIO\n");
 			}
-
+			break;
 		default:
-			printf(" Invalid op!\n");
+			printf(" 1 Invalid op!\n");
 	}
 }
 
@@ -232,7 +234,7 @@ void opr(enviroment *env, int *stack){
 			stack[env->sp] = stack[env->sp] >= stack[env->sp + 1];
 			break;
 		default:
-			printf("Invalid op");
+			printf("2 Invalid op");
 		}
 }
 
