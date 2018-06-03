@@ -31,7 +31,7 @@ void vm (char* fileName);
 void fetch(enviroment *env, instruction *irList, FILE *ofp);
 void execute(enviroment *env,int *stack,int *halt);
 void opr(enviroment *env, int *stack);
-void printStack(int printvalue,enviroment *env,int sp,int bp,int* stack,int l);
+void printStack(int printvalue,enviroment *env,int sp,int bp,int* stack,int l,FILE *ofp);
 
 int main(int argc, char **argv){
 	int i;
@@ -97,9 +97,9 @@ void vm (char *fileName){
 		}
 		fetch(env, irList, ofp);
 		execute(env, stack, halt);
-		printStack(1,env,env->sp,env->bp,stack,env->ir.l);
-		printStack(2,env,env->sp,env->bp,stack,env->ir.l);
-		printStack(3,env,env->sp,env->bp,stack,env->ir.l);
+		printStack(1,env,env->sp,env->bp,stack,env->ir.l,ofp2);
+		printStack(2,env,env->sp,env->bp,stack,env->ir.l,ofp2);
+		printStack(3,env,env->sp,env->bp,stack,env->ir.l,ofp2);
 		//printStackFrame(stack, env, ofp2);
 	}
 	
@@ -115,9 +115,10 @@ void fetch(enviroment *env, instruction *irList, FILE *ofp){
 	
 	env->ir = irList[env->pc];
 	
-	//fprintf(ofp,"%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
-					//env->ir.m);
 	printf("%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
+					env->ir.m);
+					
+	fprintf(ofp,"%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
 					env->ir.m);
 	
 	env->pcPrev = env->pc;
@@ -169,7 +170,7 @@ void execute(enviroment *env,int *stack, int *halt){
 		case 9: //SIO
 			switch (env->ir.m) {
 				case 1://SIO1
-					printf("%d\n", env->R[env->ir.r]);
+					//printf("%d\n", env->R[env->ir.r]);
 					break;
 				case 2://SIO2
 					scanf("%d", &stack[env->sp]);
@@ -245,39 +246,48 @@ int base(int l, int base,int *stack) // l stand for L in the instruction format
 			return b1;
 }
 
-void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l){
+void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FILE *ofp){
      int i;
 	 	 
 	switch(printValue){
 		
 		case 1:
-			printf("%d\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
-						env->ir.m, env->pc, env->bp, env->sp);	
+			printf("%d %s %d %d %d %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+						env->ir.m, env->pc, env->bp, env->sp);
+			
+			fprintf(ofp,"%d %s %d %d %d %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+						env->ir.m, env->pc, env->bp, env->sp);
 						
 			break;
 		case 2:
 			if (bp == 1) {
 				if (l > 0) {
 					printf("|");
+					fprintf(ofp,"|");
 				}
 			 }	   
 			else {
 				//Print the lesser lexical level
-				printStack(2,env,bp-1, stack[bp + 2], stack, l-1);
+				printStack(2,env,bp-1, stack[bp + 2], stack, l-1,ofp);
 				printf("|");
+				fprintf(ofp,"|");
 			}
 				//Print the stack contents - at the current level
-			for (i = bp; i <= sp; i++) {
-				 printf("%3d ", stack[i]);	
+			for (i = bp; i <= sp; i++){
+				printf("%3d ", stack[i]);
+				fprintf(ofp,"%3d ", stack[i]);	
 			}
 			break;
 		case 3:
 			printf("\tR[");
+			fprintf(ofp,"\tR[");
 			
 			for(i=0;i<16;i++){
-				printf("%d ",env->R[i]);	
+				printf("%d ",env->R[i]);
+				fprintf(ofp,"%d ",env->R[i]);
 			}
 			printf("]\n");
+			fprintf(ofp,"]\n");
 			break;
 	}
 }	
