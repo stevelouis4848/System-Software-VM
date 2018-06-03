@@ -57,8 +57,6 @@ void vm (char *fileName){
 	stack = calloc(MAX_STACK_HEIGHT,sizeof(int));
 	halt = malloc(sizeof(int));
 	
-	
-	env->R[]
 	env->sp = 0;
 	env->bp = 1;
 	env->pc = 0;
@@ -131,22 +129,18 @@ void execute(enviroment *env,int *stack, int *halt){
 
 	switch (env->ir.op) {
 		case 1: //LIT
-			env->sp++;
-			stack[env->sp] = env->ir.m;
+			env->R[env->ir.r] = env->ir.m;
 			break;
 		case 2: //RTN
 			env->sp = env->bp - 1;
 			env->bp = stack[env->sp + 3];
-			env->pc = stack[env->sp + 4];
-			env->ir.l++;			
+			env->pc = stack[env->sp + 4];			
 			break;
 		case 3: //LOD
-			env->sp++;
-			stack[env->sp] = stack[base(env->ir.l, env->bp, stack) + env->ir.m];
+			env->R[env->ir.r] = stack[base(env->ir.l, env->bp, stack) + env->ir.m];
 			break;
 		case 4: //STO
-			stack[base(env->ir.l, env->bp, stack) + env->ir.m] = stack[env->sp];
-			env->sp--;
+			stack[base(env->ir.l, env->bp, stack) + env->ir.m] = env->R[env->ir.r];
 			break;
 		case 5: //CAL
 			stack[env->sp + 1] = 0; //env->space to return value
@@ -154,9 +148,7 @@ void execute(enviroment *env,int *stack, int *halt){
 			stack[env->sp + 3] = env->bp; //dynamic link (DL)
 			stack[env->sp + 4] = env->pc; //return address (RA)
 			env->bp = env->sp + 1;
-			env->sp = env->sp + 4;
-			env->pc = env->ir.m;
-			env->ir.l++;			
+			env->pc = env->ir.m;		
 			break;
 		case 6: //INC
 			env->sp = env->sp + env->ir.m;
@@ -165,19 +157,16 @@ void execute(enviroment *env,int *stack, int *halt){
 			env->pc = env->ir.m;
 			break;
 		case 8: //JPC
-			if (stack[env->sp] == 0) {
+			if (env->R[env->ir.r] == 0) {
 				env->pc = env->ir.m;
 			}
-			env->sp--;
 			break;
 		case 9: //SIO
 			switch (env->ir.m) {
 				case 1://SIO1
-					printf("%d\n", stack[env->sp]);
-					env->sp--;
+					printf("%d\n", env->R[env->ir.r]);
 					break;
 				case 2://SIO2
-					env->sp++;
 					scanf("%d", &stack[env->sp]);
 					break;
 				case 3://SIO3
@@ -197,54 +186,43 @@ void opr(enviroment *env, int *stack){
 
 	switch(env->ir.op){
 		case 10: //NEG
-			stack[env->sp] = -stack[env->sp];
+			env->R[env->ir.r] = -env->R[env->ir.r];
 			break;
 		case 11: //ADD
-			env->sp--;
-			stack[env->sp] = stack[env->sp] + stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] + env->R[env->ir.m];
 			break;
 		case 12: //SUB
-			env->sp--;
-			stack[env->sp] = stack[env->sp] - stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] - env->R[env->ir.m];
 			break;
 		case 13: //MUL
-			env->sp--;
-			stack[env->sp] = stack[env->sp] * stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] * env->R[env->ir.m];
 			break;
 		case 14: //DIV
-			env->sp--;
-			stack[env->sp] = stack[env->sp] / stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] / env->R[env->ir.m];
 			break;
 		case 15: //ODD
-			stack[env->sp] = stack[env->sp] % 2;
+			env->R[env->ir.r] = env->R[env->ir.r]] % 2;
 			break;
 		case 16: //MOD
-			env->sp--;
-			stack[env->sp] = stack[env->sp] % stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] % env->R[env->ir.m];
 			break;
 		case 17: //EQL
-			env->sp--;
-			stack[env->sp] = stack[env->sp] == stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] == env->R[env->ir.m];
 			break;
 		case 18: //NEQ
-			env->sp--;
-			stack[env->sp] = stack[env->sp] != stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] != env->R[env->ir.m];
 			break;
 		case 19: //LSS
-			env->sp--;
-			stack[env->sp] = stack[env->sp] < stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] < env->R[env->ir.m];
 			break;
 		case 20: //LEQ
-			env->sp--;
-			stack[env->sp] = stack[env->sp] <= stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] <= env->R[env->ir.m];
 			break;
 		case 21: //GTR
-			env->sp--;
-			stack[env->sp] = stack[env->sp] > stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] > env->R[env->ir.m];
 			break;
 		case 22: //GEQ
-			env->sp--;
-			stack[env->sp] = stack[env->sp] >= stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] >= env->R[env->ir.m];
 			break;
 		default:
 			printf("2 Invalid op");
