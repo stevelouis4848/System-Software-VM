@@ -5,7 +5,7 @@ int MAX_STACK_HEIGHT = 2000;
 int MAX_CODE_LENGTH = 500;
 int MAX_LEXI_LEVELS = 3;
 
-
+int halt = 0;
 
 char *opCode[] = {"NULL", "lit", "lod", "sto", "cal", "inc", "jmp","jpc", "sio",
 					"neg", "add", "sub", "mul", "div", "odd","mod", "eql", "neq",
@@ -85,12 +85,11 @@ void vm (char *fileName){
 		i++;
 	}
 
-	//while (env->bp != 0){		
+	while (env->bp != 0 || halt != 1){		
 		fetch(env, irList, ofp);
-		//execute(env, stack);
+		execute(env, stack);
 		//printStackFrame(stack, env, ofp2);
-	//}
-	
+	}
 	
 	fclose(ifp);
 	fclose(ofp);
@@ -119,119 +118,128 @@ void execute(enviroment *env,int *stack){
 
 	switch (env->ir.op) {
 		case 1: //LIT
-			env->sp=env->sp+1;
-			stack[env->sp]=env->ir.m;
+			env->sp++;
+			stack[env->sp] = env->ir.m;
 			break;
-		case 2: //opr function
-			opr(env,stack);
+		case 2: //RTN
+			env->sp = env->bp - 1;
+			env->pc = stack[env->sp + 4];
+			env->bp = stack[env->sp + 3];
 			break;
 		case 3: //LOD
-			env->sp=env->sp+1;
-			stack[env->sp]=stack[base(env->ir.l, env->bp, stack)+env->ir.m];
+			env->sp++;
+			stack[env->sp] = stack[base(env->ir.l, env->bp, stack) + env->ir.m];
 			break;
 		case 4: //STO
-			stack[base(env->ir.l, env->bp, stack)+env->ir.m]=stack[env->sp];
-			env->sp=env->sp-1;
+			stack[base(env->ir.l, env->bp, stack) + env->ir.m] = stack[env->sp];
+			env->sp--;
 			break;
 		case 5: //CAL
-			stack[env->sp+1]=0; //env->space to return value
-			stack[env->sp+2]=base(env->ir.l, env->bp, stack); //static link (SL)
-			stack[env->sp+3]=env->bp; //dynamic link (DL)
-			stack[env->sp+4]=env->pc; //return address (RA)
-			env->bp=env->sp+1;
-			env->pc=env->ir.m;
+			stack[env->sp + 1] = 0; //env->space to return value
+			stack[env->sp + 2] = base(env->ir.l, env->bp, stack); //static link (SL)
+			stack[env->sp + 3] = env->bp; //dynamic link (DL)
+			stack[env->sp + 4] = env->pc; //return address (RA)
+			env->bp = env->sp + 1;
+			env->pc = env->ir.m;
 			break;
 		case 6: //INC
-			env->sp=env->sp+env->ir.m;
+			env->sp = env->sp + env->ir.m;
 			break;
 		case 7: //JMP
-			env->pc=env->ir.m;
+			env->pc = env->ir.m;
 			break;
 		case 8: //JPC
-			if (stack[env->sp]==0) {
-							env->pc=env->ir.m;
+			if (stack[env->sp] == 0) {
+				env->pc = env->ir.m;
 			}
-			env->sp=env->sp-1;
+			env->sp--;
 			break;
-		case 9: //SIO1
-			printf("%d\n", stack[env->sp]);
-			env->sp=env->sp-1;
+		case 9: //SIO
+			switch (env->ir.m) {
+				case 1://SIO1
+					printf("%d\n", stack[env->sp]);
+					env->sp--;
+					break;
+				case 2://SIO2
+					env->sp++;
+					scanf("%d", &stack[env->sp]);
+					break;
 
-			if(env->ir.m)//SIO2
-				env->sp=env->sp+1;
-				scanf("%d", &stack[env->sp]);
+				case 3://SIO3
+					halt = 1;
+					env->bp = 0;
+					break;
+				default:
+				printf("Invalid m for SIO");
+			}
 
-			if(env->ir.m)//SIO3
-				env->sp=env->sp+1;
-				scanf("%d", &stack[env->sp]);
-			break;
-
-			default:
-										printf(" Not Allowed!\n");
-				}
+		default:
+			printf(" Invalid op!\n");
+	}
 }
 
 void opr(enviroment *env, int *stack){
 
 	switch(env->ir.op){
 		case 10: //NEG
-			stack[env->sp]=-stack[env->sp];
+			stack[env->sp] = -stack[env->sp];
 			break;
 		case 11: //ADD
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]+stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] + stack[env->sp + 1];
 			break;
 		case 12: //SUB
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]-stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] - stack[env->sp + 1];
 			break;
 		case 13: //MUL
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]*stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] * stack[env->sp + 1];
 			break;
 		case 14: //DIV
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]/stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] / stack[env->sp + 1];
 			break;
 		case 15: //ODD
-			stack[env->sp]=stack[env->sp]%2;
+			stack[env->sp] = stack[env->sp] % 2;
 			break;
 		case 16: //MOD
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]%stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] % stack[env->sp + 1];
 			break;
 		case 17: //EQL
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]==stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] == stack[env->sp + 1];
 			break;
 		case 18: //NEQ
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]!=stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] != stack[env->sp + 1];
 			break;
 		case 19: //LSS
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]<stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] < stack[env->sp + 1];
 			break;
 		case 20: //LEQ
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]<=stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] <= stack[env->sp + 1];
 			break;
 		case 21: //GTR
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]>stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] > stack[env->sp + 1];
 			break;
 		case 22: //GEQ
-			env->sp=env->sp-1;
-			stack[env->sp]=stack[env->sp]>=stack[env->sp+1];
+			env->sp--;
+			stack[env->sp] = stack[env->sp] >= stack[env->sp + 1];
 			break;
+		default:
+			printf("Invalid op");
 		}
 }
 
 int base(int l, int base,int *stack) // l stand for L in the instruction format
 {
-	int b1; //find base L levels down
-	b1 = base;
-
+	int b1 = base;; //find base L levels down
+	
 	while (l > 0){
 			b1 = stack[b1 + 1];
 			l--;

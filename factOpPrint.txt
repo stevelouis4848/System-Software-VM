@@ -1,2 +1,0 @@
-Factorial Op Printout:
-0 jmp 0 0 6 
