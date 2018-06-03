@@ -31,8 +31,7 @@ void vm (char* fileName);
 void fetch(enviroment *env, instruction *irList, FILE *ofp);
 void execute(enviroment *env,int *stack,int *halt);
 void opr(enviroment *env, int *stack);
-void printStack(int sp, int bp, int* stack, int l);
-
+void printStack(int printvalue,enviroment *env,int sp,int bp,int* stack,int l);
 
 int main(int argc, char **argv){
 	int i;
@@ -92,15 +91,15 @@ void vm (char *fileName){
 	i=0;
 	while (*halt != 1 ){
 		
-		fetch(env, irList, ofp);
-		execute(env, stack, halt);
 		if(i == 0){
-			printf("Factorial Stack Trace:\n");
+			printf("Factorial Op Printout:\n");
 			i++;
 		}
-		//printf("%d\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
-		//			env->ir.m, env->pc, env->bp, env->sp);
-		//void printStack(env->sp, env->bp, stack, env->ir.l);
+		fetch(env, irList, ofp);
+		execute(env, stack, halt);
+		printStack(1,env,env->sp,env->bp,stack,env->ir.l);
+		printStack(2,env,env->sp,env->bp,stack,env->ir.l);
+		printStack(3,env,env->sp,env->bp,stack,env->ir.l);
 		//printStackFrame(stack, env, ofp2);
 	}
 	
@@ -246,21 +245,39 @@ int base(int l, int base,int *stack) // l stand for L in the instruction format
 			return b1;
 }
 
-void printStack(int sp, int bp, int* stack, int l){
+void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l){
      int i;
-	 
-     if (bp == 1) {
-     	if (l > 0) {
-	   printf("|");
-	   }
-     }	   
-     else {
-     	  //Print the lesser lexical level
-     	  printStack(bp-1, stack[bp + 2], stack, l-1);
-	  printf("|");
-     }
-     //Print the stack contents - at the current level
-     for (i = bp; i <= sp; i++) {
-     	 printf("%3d ", stack[i]);	
-     }
+	 	 
+	switch(printValue){
+		
+		case 1:
+			printf("%d\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+						env->ir.m, env->pc, env->bp, env->sp);	
+						
+			break;
+		case 2:
+			if (bp == 1) {
+				if (l > 0) {
+					printf("|");
+				}
+			 }	   
+			else {
+				//Print the lesser lexical level
+				printStack(2,env,bp-1, stack[bp + 2], stack, l-1);
+				printf("|");
+			}
+				//Print the stack contents - at the current level
+			for (i = bp; i <= sp; i++) {
+				 printf("%3d ", stack[i]);	
+			}
+			break;
+		case 3:
+			printf("\tR[");
+			
+			for(i=0;i<16;i++){
+				printf("%d ",env->R[i]);	
+			}
+			printf("]\n");
+			break;
+	}
 }	
