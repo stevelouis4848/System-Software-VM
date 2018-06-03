@@ -17,10 +17,11 @@ typedef struct instruction{
 						}instruction;
 
 typedef struct enviroment{
-							int pc; // opcode
-							int bp; // reg
-							int sp; // L
-							instruction ir; // M
+							int pc; // pc
+							int pcPrev; //previous pc
+							int bp; // base pointer
+							int sp; // stack pointer
+							instruction ir; // current instruction
 					}enviroment;
 					
 int base(int l, int base,int *stack);
@@ -89,6 +90,7 @@ void vm (char *fileName){
 		
 		fetch(env, irList, ofp);
 		execute(env, stack, halt);
+		printStackFrame(stack, env, ofp);
 		//printStackFrame(stack, env, ofp2);
 	}
 	
@@ -107,7 +109,8 @@ void fetch(enviroment *env, instruction *irList, FILE *ofp){
 					//env->ir.m);
 	printf("%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
 					env->ir.m);
-					
+	
+	env->pcPrev = env->pc;
 	env->pc++;
 	
 }
@@ -126,8 +129,9 @@ void execute(enviroment *env,int *stack, int *halt){
 			break;
 		case 2: //RTN
 			env->sp = env->bp - 1;
-			env->pc = stack[env->sp + 4];
 			env->bp = stack[env->sp + 3];
+			env->pc = stack[env->sp + 4];
+			env->ir.l++;			
 			break;
 		case 3: //LOD
 			env->sp++;
@@ -143,7 +147,9 @@ void execute(enviroment *env,int *stack, int *halt){
 			stack[env->sp + 3] = env->bp; //dynamic link (DL)
 			stack[env->sp + 4] = env->pc; //return address (RA)
 			env->bp = env->sp + 1;
+			env->sp = env->sp + 4;
 			env->pc = env->ir.m;
+			env->ir.l++;			
 			break;
 		case 6: //INC
 			env->sp = env->sp + env->ir.m;
@@ -160,7 +166,7 @@ void execute(enviroment *env,int *stack, int *halt){
 		case 9: //SIO
 			switch (env->ir.m) {
 				case 1://SIO1
-					printf("%d----\n", stack[env->sp]);
+					printf("%d\n", stack[env->sp]);
 					env->sp--;
 					break;
 				case 2://SIO2
@@ -249,8 +255,30 @@ int base(int l, int base,int *stack) // l stand for L in the instruction format
 			return b1;
 }
 
-/*void printStackFrame(int *stack, enviroment *env, FILE *ofp) {
+void printStackFrame(int *stack, enviroment *env, FILE *ofp) {
 	
+	int i = 0;
+	
+	printf("%d\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+					env->ir.m, env->pc, env->bp, env->sp);
+	
+	
+	for(i = 0; i <= env->sp; i++){
+
+			//dertermine if we need to print an activation record bar
+			//if(numAr < ars && i == arBreak[numAr] && i != 0){
+				//numAr++;
+				//fprintf(fp, "| ");
+			//}
+
+			//print our stack content
+			printf("%d ", stack[i]);
+		}
+		printf("\n");
+	return;
+}
+	
+	/*
 	int i = 0;
 
 	//Base Case #1: if env->bp is 0, the program has finished. No stack frames are left to print out
