@@ -21,7 +21,9 @@ typedef struct enviroment{
 							int pcPrev; //previous pc
 							int bp; // base pointer
 							int sp; // stack pointer
+							int *R;   //Register
 							instruction ir; // current instruction
+							
 					}enviroment;
 					
 int base(int l, int base,int *stack);
@@ -29,7 +31,7 @@ void vm (char* fileName);
 void fetch(enviroment *env, instruction *irList, FILE *ofp);
 void execute(enviroment *env,int *stack,int *halt);
 void opr(enviroment *env, int *stack);
-void printStackFrame(int *stack, enviroment *env, FILE *ofp);
+void printStack(enviroment *env, int *stack);
 
 
 int main(int argc, char **argv){
@@ -51,9 +53,12 @@ void vm (char *fileName){
 
 	irList = malloc( MAX_CODE_LENGTH * sizeof(instruction));
 	env = malloc(sizeof(enviroment));
-	stack = malloc(MAX_STACK_HEIGHT * sizeof(int));
+	env->R = calloc(16,sizeof(int));
+	stack = calloc(MAX_STACK_HEIGHT,sizeof(int));
 	halt = malloc(sizeof(int));
-
+	
+	
+	env->R[]
 	env->sp = 0;
 	env->bp = 1;
 	env->pc = 0;
@@ -90,7 +95,9 @@ void vm (char *fileName){
 		
 		fetch(env, irList, ofp);
 		execute(env, stack, halt);
-		printStackFrame(stack, env, ofp);
+		printf("%d\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+					env->ir.m, env->pc, env->bp, env->sp);
+		printStackFrame(env, stack);
 		//printStackFrame(stack, env, ofp2);
 	}
 	
@@ -255,74 +262,23 @@ int base(int l, int base,int *stack) // l stand for L in the instruction format
 			return b1;
 }
 
-void printStackFrame(int *stack, enviroment *env, FILE *ofp) {
-	
-	int i = 0;
-	
-	printf("%d\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
-					env->ir.m, env->pc, env->bp, env->sp);
-	
-	
-	for(i = 0; i <= env->sp; i++){
-
-			//dertermine if we need to print an activation record bar
-			//if(numAr < ars && i == arBreak[numAr] && i != 0){
-				//numAr++;
-				//fprintf(fp, "| ");
-			//}
-
-			//print our stack content
-			printf("%d ", stack[i]);
-		}
-		printf("\n");
-	return;
+void printStack(enviroment *env,int* stack){
+     int i;
+	 
+     if (env->bp == 1) {
+     	if (env->ir.l > 0) {
+	   printf("|");
+	   }
+     }	   
+     else {
+     	  //Print the lesser lexical level
+     	  printStack(env->bp-1, stack[env->bp + 2], stack, env->ir.l-1);
+	  printf("|");
+     }
+     //Print the stack contents - at the current level
+     for (i = env->bp; i <= env->sp; i++) {
+     	 printf("%3d ", stack[i]);	
+     }
 }
 	
-	/*
-	int i = 0;
-
-	//Base Case #1: if env->bp is 0, the program has finished. No stack frames are left to print out
-	if (env->bp==0) {
-	return;
-	}
-	//Base Case #2: if env->bp is 1, then it is in the main stack frame, and we print out the stack from env->bp to env->sp, with env->bp pointing to the bottom of the main stack frame, and env->sp pointing to the top of the stack
-	else if (env->bp==1) {
-
-	for(i=1;i<=env->sp;i++){
-		fprintf(ofp, "%d ",stack[i]);
-
-		//fprintf(ofp3, "%d ",stack[i]);
-	}
-	return;
-	}
-		//Recursive Case: Prints out each new stack frame, separating them with |
-	else {
-	printStackFrame(stack, env->bp-1, stack[env->bp+2], ofp);
-
-		//Covers one case, where CAL instruction is just called, meaning a new Stack Frame is created, but env->sp is still less than env->bp
-		if (env->sp<env->bp) {
-			fprintf(ofp, "| ");
-
-			//fprintf(ofp3, "| ");
-
-			for (i=0;i<4;i++) {
-				fprintf(ofp, "%d ", stack[env->bp+i]);
-
-				//fprintf(ofp3, "%d ", stack[env->bp+i]);
-			}
-		}
-		//For env->sp being greater than env->bp, aka most cases
-		else {
-			fprintf(ofp, "| ");
-
-			//fprintf(ofp3, "| ");
-			for (i=env->bp;i<=env->sp;i++) {
-				fprintf(ofp, "%d ", stack[i]);
-
-				//fprintf(ofp3, "%d ", stack[i]);
-			}
-		}
-	return;
-	}	
-}
-*/
+	
