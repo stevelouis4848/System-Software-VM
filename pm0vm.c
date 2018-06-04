@@ -1,3 +1,23 @@
+// Name: Steve Louis
+// Class: COP 3402 summer 2018
+// Assignment: Homework #1 (P-Machine)
+
+/*
+README
+
+	# How to run
+
+	- compile using gcc pm0vm.c
+
+	- run the program with the input file by entering ( ./a.out "name of input file".txt )
+		
+	- The program will print the outputs to the screen as well as within three separate txt files
+	 
+		file named "factOpPrint.txt" has the instructions
+		file named "stackTracePrint.txt" has the stack trace and registers
+		file named "factPrint.txt" has the factorial output
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -68,7 +88,7 @@ void vm (char *fileName){
 	ofp3 = fopen("factPrint.txt", "w");
 	
 	
-	if(ifp == NULL || ofp == NULL)
+	if(ifp == NULL || ofp == NULL || ofp2 == NULL || ofp3 == NULL)
 	{
 		printf("Invalid file pointer");
 		return;
@@ -137,9 +157,6 @@ void vm (char *fileName){
 void fetch(int count,enviroment *env, instruction *irList, FILE *ofp){
 	
 	env->ir = irList[env->pc];
-	
-	/*printf("%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
-					env->ir.m);*/
 					
 	fprintf(ofp,"%d %s %d %d %d \n",count,opCode[env->ir.op],env->ir.r,env->ir.l,
 					env->ir.m);
@@ -194,7 +211,6 @@ void execute(enviroment *env,int *stack, int *halt,FILE *ofp, FILE *ofp2){
 		case 9: //SIO
 			switch (env->ir.m) {
 				case 1://SIO1
-					//printf("%d\n", env->R[env->ir.r]);
 					fprintf(ofp,"%d\n", env->R[env->ir.r]);
 					fprintf(ofp2,"%d\n", env->R[env->ir.r]);
 					break;
@@ -203,14 +219,13 @@ void execute(enviroment *env,int *stack, int *halt,FILE *ofp, FILE *ofp2){
 					break;
 				case 3://SIO3
 					*halt = 1;
-					//printf("PROGRAM HALTED\n");
 					break;
 				default:
 				printf("Invalid m for SIO\n");
 			}
 			break;
 		default:
-			printf(" 1 Invalid op!\n");
+			printf("Invalid OP!\n");
 	}
 }
 
@@ -257,7 +272,7 @@ void opr(enviroment *env, int *stack){
 			env->R[env->ir.r] = env->R[env->ir.l] >= env->R[env->ir.m];
 			break;
 		default:
-			printf("2 Invalid op");
+			printf("Invalid OP!\n");
 		}
 }
 
@@ -277,10 +292,7 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 	 	 
 	switch(printValue){
 		
-		case 1:
-			/*printf("%d %s %d %d %d\t %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
-						env->ir.m, env->pc, env->bp, env->sp);*/
-			
+		case 1:			
 			fprintf(ofp,"%d %s %d %d %d    [%d %d %d]    ",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
 						env->ir.m, env->pc, env->bp, env->sp);
 						
@@ -288,31 +300,25 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 		case 2:
 			if (bp == 1) {
 				if (l > 0) {
-					//printf("|");
 					fprintf(ofp,"|");
 				}
 			 }	   
 			else {
 				//Print the lesser lexical level
 				printStack(2,env,bp-1, stack[bp + 2], stack, l-1,ofp);
-				//printf("|");
 				fprintf(ofp,"|");
 			}
 				//Print the stack contents - at the current level
 			for (i = bp; i <= sp; i++){
-				//printf("%3d ", stack[i]);
 				fprintf(ofp,"%3d ", stack[i]);	
 			}
 			break;
 		case 3:
-			//printf("\n\tR[");
 			fprintf(ofp,"\n\tRegisters:[");
 			
 			for(i=0;i<8;i++){
-				//printf("%d ",env->R[i]);
 				fprintf(ofp,"%d ",env->R[i]);
 			}
-			//printf("]\n");
 			fprintf(ofp,"]\n\n");
 			break;
 	}
