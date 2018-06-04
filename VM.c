@@ -48,7 +48,8 @@ void vm (char *fileName){
 	instruction *irList;
 	enviroment *env;
 	int *stack,i = 0, buff[3],*halt;
-	FILE *ifp, *ofp, *ofp2, *ofp3;
+	FILE *ifp, *ofp, *ofp2, *ofp3, *ofp4;
+	char c;
 
 	irList = malloc( MAX_CODE_LENGTH * sizeof(instruction));
 	env = malloc(sizeof(enviroment));
@@ -92,7 +93,7 @@ void vm (char *fileName){
 	while (*halt != 1 ){
 		
 		if(i == 0){
-			printf("Factorial Op Printout:\n");
+			//printf("Factorial Op Printout:\n");
 			i++;
 		}
 		fetch(env, irList, ofp);
@@ -102,6 +103,16 @@ void vm (char *fileName){
 		printStack(3,env,env->sp,env->bp,stack,env->ir.l,ofp2);
 		//printStackFrame(stack, env, ofp2);
 	}
+	
+	ofp4 = fopen("factOpPrint.txt", "r");
+	
+	c = fgetc(ofp4);
+	while(c != EOF){
+		printf("%c",c);
+		c = fgetc(ofp4);		
+	}
+	
+	
 	
 	fclose(ifp);
 	fclose(ofp);
@@ -115,8 +126,8 @@ void fetch(enviroment *env, instruction *irList, FILE *ofp){
 	
 	env->ir = irList[env->pc];
 	
-	printf("%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
-					env->ir.m);
+	/*printf("%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
+					env->ir.m);*/
 					
 	fprintf(ofp,"%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
 					env->ir.m);
@@ -252,8 +263,8 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 	switch(printValue){
 		
 		case 1:
-			printf("%d %s %d %d %d %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
-						env->ir.m, env->pc, env->bp, env->sp);
+			/*printf("%d %s %d %d %d %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+						env->ir.m, env->pc, env->bp, env->sp);*/
 			
 			fprintf(ofp,"%d %s %d %d %d %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
 						env->ir.m, env->pc, env->bp, env->sp);
@@ -262,31 +273,31 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 		case 2:
 			if (bp == 1) {
 				if (l > 0) {
-					printf("|");
+					//printf("|");
 					fprintf(ofp,"|");
 				}
 			 }	   
 			else {
 				//Print the lesser lexical level
 				printStack(2,env,bp-1, stack[bp + 2], stack, l-1,ofp);
-				printf("|");
+				//printf("|");
 				fprintf(ofp,"|");
 			}
 				//Print the stack contents - at the current level
 			for (i = bp; i <= sp; i++){
-				printf("%3d ", stack[i]);
+				//printf("%3d ", stack[i]);
 				fprintf(ofp,"%3d ", stack[i]);	
 			}
 			break;
 		case 3:
-			printf("\tR[");
+			//printf("\tR[");
 			fprintf(ofp,"\tR[");
 			
 			for(i=0;i<16;i++){
-				printf("%d ",env->R[i]);
+				//printf("%d ",env->R[i]);
 				fprintf(ofp,"%d ",env->R[i]);
 			}
-			printf("]\n");
+			//printf("]\n");
 			fprintf(ofp,"]\n");
 			break;
 	}
