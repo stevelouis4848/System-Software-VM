@@ -177,7 +177,8 @@ void execute(enviroment *env,int *stack, int *halt,FILE *ofp){
 			stack[env->sp + 3] = env->bp; //dynamic link (DL)
 			stack[env->sp + 4] = env->pc; //return address (RA)
 			env->bp = env->sp + 1;
-			env->pc = env->ir.m;		
+			env->pc = env->ir.m;	
+			env->sp = env->sp + 4;
 			break;
 		case 6: //INC
 			env->sp = env->sp + env->ir.m;
@@ -303,8 +304,8 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 			}
 			break;
 		case 3:
-			//printf("\tR[");
-			fprintf(ofp,"    Registers:[");
+			//printf("\n\tR[");
+			fprintf(ofp,"\n\tRegisters:[");
 			
 			for(i=0;i<8;i++){
 				//printf("%d ",env->R[i]);
