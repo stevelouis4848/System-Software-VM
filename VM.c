@@ -29,7 +29,7 @@ typedef struct enviroment{
 int base(int l, int base,int *stack);
 void vm (char* fileName);
 void fetch(int count, enviroment *env, instruction *irList, FILE *ofp);
-void execute(enviroment *env,int *stack,int *halt, FILE *ofp);
+void execute(enviroment *env,int *stack,int *halt, FILE *ofp, FILE *ofp2);
 void opr(enviroment *env, int *stack);
 void printStack(int printvalue,enviroment *env,int sp,int bp,int* stack,int l,FILE *ofp);
 
@@ -97,7 +97,7 @@ void vm (char *fileName){
 			//printf("Factorial Op Printout:\n");			
 		}
 		fetch(count, env, irList, ofp);
-		execute(env, stack, halt,ofp3);
+		execute(env, stack, halt,ofp2,ofp3);
 		printStack(1,env,env->sp,env->bp,stack,env->ir.l,ofp2);
 		printStack(2,env,env->sp,env->bp,stack,env->ir.l,ofp2);
 		printStack(3,env,env->sp,env->bp,stack,env->ir.l,ofp2);
@@ -149,7 +149,7 @@ void fetch(int count,enviroment *env, instruction *irList, FILE *ofp){
 	
 }
 
-void execute(enviroment *env,int *stack, int *halt,FILE *ofp){
+void execute(enviroment *env,int *stack, int *halt,FILE *ofp, FILE *ofp2){
 
 	if(env->ir.op >= 10){
 		opr(env,stack);
@@ -196,6 +196,7 @@ void execute(enviroment *env,int *stack, int *halt,FILE *ofp){
 				case 1://SIO1
 					//printf("%d\n", env->R[env->ir.r]);
 					fprintf(ofp,"%d\n", env->R[env->ir.r]);
+					fprintf(ofp2,"%d\n", env->R[env->ir.r]);
 					break;
 				case 2://SIO2
 					scanf("%d", &stack[env->sp]);

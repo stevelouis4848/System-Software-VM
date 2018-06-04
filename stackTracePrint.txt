@@ -94,6 +94,7 @@ PC OP Rg Lx Vl [PC BP SP]
 19 LOD 0 0 5    [20 1 6]      0   0   0   0   1   6 
 	Registers:[6 1 0 0 0 0 0 0 ]
 
+6
 20 SIO 0 0 1    [21 1 6]      0   0   0   0   1   6 
 	Registers:[6 1 0 0 0 0 0 0 ]
 
