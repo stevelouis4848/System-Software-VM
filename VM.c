@@ -28,11 +28,10 @@ typedef struct enviroment{
 					
 int base(int l, int base,int *stack);
 void vm (char* fileName);
-void fetch(enviroment *env, instruction *irList, FILE *ofp);
-void execute(enviroment *env,int *stack,int *halt);
+void fetch(int count, enviroment *env, instruction *irList, FILE *ofp);
+void execute(enviroment *env,int *stack,int *halt, FILE *ofp);
 void opr(enviroment *env, int *stack);
-void printStack(enviroment *env, int *stack);
-
+void printStack(int printvalue,enviroment *env,int sp,int bp,int* stack,int l,FILE *ofp);
 
 int main(int argc, char **argv){
 	int i;
@@ -48,8 +47,9 @@ void vm (char *fileName){
 	
 	instruction *irList;
 	enviroment *env;
-	int *stack,i = 0, buff[3],*halt;
+	int count, *stack, *halt, buff[3];
 	FILE *ifp, *ofp, *ofp2, *ofp3;
+	char ofpPrint;
 
 	irList = malloc( MAX_CODE_LENGTH * sizeof(instruction));
 	env = malloc(sizeof(enviroment));
@@ -57,8 +57,6 @@ void vm (char *fileName){
 	stack = calloc(MAX_STACK_HEIGHT,sizeof(int));
 	halt = malloc(sizeof(int));
 	
-	
-	env->R[]
 	env->sp = 0;
 	env->bp = 1;
 	env->pc = 0;
@@ -76,45 +74,74 @@ void vm (char *fileName){
 		return;
 	}
 
-	fprintf(ofp,"Factorial Op Printout:\n");
-	fprintf(ofp2,"Factorial Stack Trace:\n");
-	fprintf(ofp3,"Factorial Output:\n");
+	fprintf(ofp,"\nFactorial Op Printout:\n");
+	fprintf(ofp2,"\nFactorial Stack Trace:\nInital Values pc bp sp\n");
+	fprintf(ofp3,"\nFactorial Output:\n");
 	
+	count = 0;
 	while( fscanf(ifp, "%d %d %d %d",&buff[0],
 					&buff[1],&buff[2],&buff[3]) != EOF){
 
-		irList[i].op = buff[0];
-		irList[i].r = buff[1];
-		irList[i].l = buff[2];
-		irList[i].m = buff[3];
+		irList[count].op = buff[0];
+		irList[count].r = buff[1];
+		irList[count].l = buff[2];
+		irList[count].m = buff[3];
 		
-		i++;
+		count++;
 	}
 
+	count = 0;
 	while (*halt != 1 ){
 		
-		fetch(env, irList, ofp);
-		execute(env, stack, halt);
-		printf("%d\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
-					env->ir.m, env->pc, env->bp, env->sp);
-		printStackFrame(env, stack);
-		//printStackFrame(stack, env, ofp2);
+		if(count == 0){
+			//printf("Factorial Op Printout:\n");			
+		}
+		fetch(count, env, irList, ofp);
+		execute(env, stack, halt,ofp3);
+		printStack(1,env,env->sp,env->bp,stack,env->ir.l,ofp2);
+		printStack(2,env,env->sp,env->bp,stack,env->ir.l,ofp2);
+		printStack(3,env,env->sp,env->bp,stack,env->ir.l,ofp2);
+		count++;
+	}
+	fclose(ifp);
+	fclose(ofp);
+	fclose(ofp2);
+	fclose(ofp3);
+	
+	ofp = fopen("factOpPrint.txt", "r");
+	ofp2 = fopen("stackTracePrint.txt", "r");
+	ofp3 = fopen("factPrint.txt", "r");
+	
+	ofpPrint = fgetc(ofp);
+	while(ofpPrint != EOF){
+		printf("%c",ofpPrint);
+		ofpPrint = fgetc(ofp);		
+	}
+	ofpPrint = fgetc(ofp2);
+	while(ofpPrint != EOF){
+		printf("%c",ofpPrint);
+		ofpPrint = fgetc(ofp2);		
+	}
+	ofpPrint = fgetc(ofp3);
+	while(ofpPrint != EOF){
+		printf("%c",ofpPrint);
+		ofpPrint = fgetc(ofp3);		
 	}
 	
-	fclose(ifp);
 	fclose(ofp);
 	fclose(ofp2);
 	fclose(ofp3);
 	
 }
 
-void fetch(enviroment *env, instruction *irList, FILE *ofp){
-
+void fetch(int count,enviroment *env, instruction *irList, FILE *ofp){
+	
 	env->ir = irList[env->pc];
 	
-	//fprintf(ofp,"%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
-					//env->ir.m);
-	printf("%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
+	/*printf("%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
+					env->ir.m);*/
+					
+	fprintf(ofp,"%d %s %d %d %d \n",count,opCode[env->ir.op],env->ir.r,env->ir.l,
 					env->ir.m);
 	
 	env->pcPrev = env->pc;
@@ -122,7 +149,7 @@ void fetch(enviroment *env, instruction *irList, FILE *ofp){
 	
 }
 
-void execute(enviroment *env,int *stack, int *halt){
+void execute(enviroment *env,int *stack, int *halt,FILE *ofp){
 
 	if(env->ir.op >= 10){
 		opr(env,stack);
@@ -131,22 +158,18 @@ void execute(enviroment *env,int *stack, int *halt){
 
 	switch (env->ir.op) {
 		case 1: //LIT
-			env->sp++;
-			stack[env->sp] = env->ir.m;
+			env->R[env->ir.r] = env->ir.m;
 			break;
 		case 2: //RTN
 			env->sp = env->bp - 1;
 			env->bp = stack[env->sp + 3];
-			env->pc = stack[env->sp + 4];
-			env->ir.l++;			
+			env->pc = stack[env->sp + 4];			
 			break;
 		case 3: //LOD
-			env->sp++;
-			stack[env->sp] = stack[base(env->ir.l, env->bp, stack) + env->ir.m];
+			env->R[env->ir.r] = stack[base(env->ir.l, env->bp, stack) + env->ir.m];
 			break;
 		case 4: //STO
-			stack[base(env->ir.l, env->bp, stack) + env->ir.m] = stack[env->sp];
-			env->sp--;
+			stack[base(env->ir.l, env->bp, stack) + env->ir.m] = env->R[env->ir.r];
 			break;
 		case 5: //CAL
 			stack[env->sp + 1] = 0; //env->space to return value
@@ -154,9 +177,7 @@ void execute(enviroment *env,int *stack, int *halt){
 			stack[env->sp + 3] = env->bp; //dynamic link (DL)
 			stack[env->sp + 4] = env->pc; //return address (RA)
 			env->bp = env->sp + 1;
-			env->sp = env->sp + 4;
-			env->pc = env->ir.m;
-			env->ir.l++;			
+			env->pc = env->ir.m;		
 			break;
 		case 6: //INC
 			env->sp = env->sp + env->ir.m;
@@ -165,24 +186,22 @@ void execute(enviroment *env,int *stack, int *halt){
 			env->pc = env->ir.m;
 			break;
 		case 8: //JPC
-			if (stack[env->sp] == 0) {
+			if (env->R[env->ir.r] == 0) {
 				env->pc = env->ir.m;
 			}
-			env->sp--;
 			break;
 		case 9: //SIO
 			switch (env->ir.m) {
 				case 1://SIO1
-					printf("%d\n", stack[env->sp]);
-					env->sp--;
+					//printf("%d\n", env->R[env->ir.r]);
+					fprintf(ofp,"%d\n", env->R[env->ir.r]);
 					break;
 				case 2://SIO2
-					env->sp++;
 					scanf("%d", &stack[env->sp]);
 					break;
 				case 3://SIO3
 					*halt = 1;
-					printf("PROGRAM HALTED\n");
+					//printf("PROGRAM HALTED\n");
 					break;
 				default:
 				printf("Invalid m for SIO\n");
@@ -197,54 +216,43 @@ void opr(enviroment *env, int *stack){
 
 	switch(env->ir.op){
 		case 10: //NEG
-			stack[env->sp] = -stack[env->sp];
+			env->R[env->ir.r] = -env->R[env->ir.r];
 			break;
 		case 11: //ADD
-			env->sp--;
-			stack[env->sp] = stack[env->sp] + stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] + env->R[env->ir.m];
 			break;
 		case 12: //SUB
-			env->sp--;
-			stack[env->sp] = stack[env->sp] - stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] - env->R[env->ir.m];
 			break;
 		case 13: //MUL
-			env->sp--;
-			stack[env->sp] = stack[env->sp] * stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] * env->R[env->ir.m];
 			break;
 		case 14: //DIV
-			env->sp--;
-			stack[env->sp] = stack[env->sp] / stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] / env->R[env->ir.m];
 			break;
 		case 15: //ODD
-			stack[env->sp] = stack[env->sp] % 2;
+			env->R[env->ir.r] = env->R[env->ir.r] % 2;
 			break;
 		case 16: //MOD
-			env->sp--;
-			stack[env->sp] = stack[env->sp] % stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] % env->R[env->ir.m];
 			break;
 		case 17: //EQL
-			env->sp--;
-			stack[env->sp] = stack[env->sp] == stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] == env->R[env->ir.m];
 			break;
 		case 18: //NEQ
-			env->sp--;
-			stack[env->sp] = stack[env->sp] != stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] != env->R[env->ir.m];
 			break;
 		case 19: //LSS
-			env->sp--;
-			stack[env->sp] = stack[env->sp] < stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] < env->R[env->ir.m];
 			break;
 		case 20: //LEQ
-			env->sp--;
-			stack[env->sp] = stack[env->sp] <= stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] <= env->R[env->ir.m];
 			break;
 		case 21: //GTR
-			env->sp--;
-			stack[env->sp] = stack[env->sp] > stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] > env->R[env->ir.m];
 			break;
 		case 22: //GEQ
-			env->sp--;
-			stack[env->sp] = stack[env->sp] >= stack[env->sp + 1];
+			env->R[env->ir.r] = env->R[env->ir.l] >= env->R[env->ir.m];
 			break;
 		default:
 			printf("2 Invalid op");
@@ -262,23 +270,48 @@ int base(int l, int base,int *stack) // l stand for L in the instruction format
 			return b1;
 }
 
-void printStack(enviroment *env,int* stack){
+void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FILE *ofp){
      int i;
-	 
-     if (env->bp == 1) {
-     	if (env->ir.l > 0) {
-	   printf("|");
-	   }
-     }	   
-     else {
-     	  //Print the lesser lexical level
-     	  printStack(env->bp-1, stack[env->bp + 2], stack, env->ir.l-1);
-	  printf("|");
-     }
-     //Print the stack contents - at the current level
-     for (i = env->bp; i <= env->sp; i++) {
-     	 printf("%3d ", stack[i]);	
-     }
-}
-	
-	
+	 	 
+	switch(printValue){
+		
+		case 1:
+			/*printf("%d %s %d %d %d\t %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+						env->ir.m, env->pc, env->bp, env->sp);*/
+			
+			fprintf(ofp,"%d %s %d %d %d    %d %d %d    ",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+						env->ir.m, env->pc, env->bp, env->sp);
+						
+			break;
+		case 2:
+			if (bp == 1) {
+				if (l > 0) {
+					//printf("|");
+					fprintf(ofp,"|");
+				}
+			 }	   
+			else {
+				//Print the lesser lexical level
+				printStack(2,env,bp-1, stack[bp + 2], stack, l-1,ofp);
+				//printf("|");
+				fprintf(ofp,"|");
+			}
+				//Print the stack contents - at the current level
+			for (i = bp; i <= sp; i++){
+				//printf("%3d ", stack[i]);
+				fprintf(ofp,"%3d ", stack[i]);	
+			}
+			break;
+		case 3:
+			//printf("\tR[");
+			fprintf(ofp,"    R[");
+			
+			for(i=0;i<8;i++){
+				//printf("%d ",env->R[i]);
+				fprintf(ofp,"%d ",env->R[i]);
+			}
+			//printf("]\n");
+			fprintf(ofp,"]\n\n");
+			break;
+	}
+}	
