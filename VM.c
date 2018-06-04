@@ -28,8 +28,8 @@ typedef struct enviroment{
 					
 int base(int l, int base,int *stack);
 void vm (char* fileName);
-void fetch(enviroment *env, instruction *irList, FILE *ofp);
-void execute(enviroment *env,int *stack,int *halt);
+void fetch(int count, enviroment *env, instruction *irList, FILE *ofp);
+void execute(enviroment *env,int *stack,int *halt, FILE *ofp);
 void opr(enviroment *env, int *stack);
 void printStack(int printvalue,enviroment *env,int sp,int bp,int* stack,int l,FILE *ofp);
 
@@ -47,9 +47,9 @@ void vm (char *fileName){
 	
 	instruction *irList;
 	enviroment *env;
-	int *stack,i = 0, buff[3],*halt;
-	FILE *ifp, *ofp, *ofp2, *ofp3, *ofp4;
-	char c;
+	int count, *stack, *halt, buff[3];
+	FILE *ifp, *ofp, *ofp2, *ofp3;
+	char ofpPrint;
 
 	irList = malloc( MAX_CODE_LENGTH * sizeof(instruction));
 	env = malloc(sizeof(enviroment));
@@ -78,58 +78,70 @@ void vm (char *fileName){
 	fprintf(ofp2,"Factorial Stack Trace:\n");
 	fprintf(ofp3,"Factorial Output:\n");
 	
+	count = 0;
 	while( fscanf(ifp, "%d %d %d %d",&buff[0],
 					&buff[1],&buff[2],&buff[3]) != EOF){
 
-		irList[i].op = buff[0];
-		irList[i].r = buff[1];
-		irList[i].l = buff[2];
-		irList[i].m = buff[3];
+		irList[count].op = buff[0];
+		irList[count].r = buff[1];
+		irList[count].l = buff[2];
+		irList[count].m = buff[3];
 		
-		i++;
+		count++;
 	}
 
-	i=0;
+	count = 0;
 	while (*halt != 1 ){
 		
-		if(i == 0){
-			//printf("Factorial Op Printout:\n");
-			i++;
+		if(count == 0){
+			//printf("Factorial Op Printout:\n");			
 		}
-		fetch(env, irList, ofp);
-		execute(env, stack, halt);
+		fetch(count, env, irList, ofp);
+		execute(env, stack, halt,ofp3);
 		printStack(1,env,env->sp,env->bp,stack,env->ir.l,ofp2);
 		printStack(2,env,env->sp,env->bp,stack,env->ir.l,ofp2);
 		printStack(3,env,env->sp,env->bp,stack,env->ir.l,ofp2);
-		//printStackFrame(stack, env, ofp2);
+		count++;
 	}
-	
-	ofp4 = fopen("factOpPrint.txt", "r");
-	
-	c = fgetc(ofp4);
-	while(c != EOF){
-		printf("%c",c);
-		c = fgetc(ofp4);		
-	}
-	
-	
-	
 	fclose(ifp);
+	fclose(ofp);
+	fclose(ofp2);
+	fclose(ofp3);
+	
+	ofp = fopen("factOpPrint.txt", "r");
+	ofp2 = fopen("stackTracePrint.txt", "r");
+	ofp3 = fopen("factPrint.txt", "r");
+	
+	ofpPrint = fgetc(ofp);
+	while(ofpPrint != EOF){
+		printf("%c",ofpPrint);
+		ofpPrint = fgetc(ofp);		
+	}
+	ofpPrint = fgetc(ofp2);
+	while(ofpPrint != EOF){
+		printf("%c",ofpPrint);
+		ofpPrint = fgetc(ofp2);		
+	}
+	ofpPrint = fgetc(ofp3);
+	while(ofpPrint != EOF){
+		printf("%c",ofpPrint);
+		ofpPrint = fgetc(ofp3);		
+	}
+	
 	fclose(ofp);
 	fclose(ofp2);
 	fclose(ofp3);
 	
 }
 
-void fetch(enviroment *env, instruction *irList, FILE *ofp){
-	int i =0;
+void fetch(int count,enviroment *env, instruction *irList, FILE *ofp){
 	
 	env->ir = irList[env->pc];
 	
 	/*printf("%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
 					env->ir.m);*/
 					
-	fprintf(ofp,"%d %s %d %d %d \n",env->pc,opCode[env->ir.op],env->ir.r,env->ir.l,
+	fprintf(ofp,"%d %s %d %d %d \n",count,opCode[env->ir.op],env->ir.r,env->ir.l,
 					env->ir.m);
 	
 	env->pcPrev = env->pc;
@@ -137,7 +149,7 @@ void fetch(enviroment *env, instruction *irList, FILE *ofp){
 	
 }
 
-void execute(enviroment *env,int *stack, int *halt){
+void execute(enviroment *env,int *stack, int *halt,FILE *ofp){
 
 	if(env->ir.op >= 10){
 		opr(env,stack);
@@ -182,13 +194,14 @@ void execute(enviroment *env,int *stack, int *halt){
 			switch (env->ir.m) {
 				case 1://SIO1
 					//printf("%d\n", env->R[env->ir.r]);
+					fprintf(ofp,"%d\n", env->R[env->ir.r]);
 					break;
 				case 2://SIO2
 					scanf("%d", &stack[env->sp]);
 					break;
 				case 3://SIO3
 					*halt = 1;
-					printf("PROGRAM HALTED\n");
+					//printf("PROGRAM HALTED\n");
 					break;
 				default:
 				printf("Invalid m for SIO\n");
@@ -263,10 +276,10 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 	switch(printValue){
 		
 		case 1:
-			/*printf("%d %s %d %d %d %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+			/*printf("%d %s %d %d %d\t %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
 						env->ir.m, env->pc, env->bp, env->sp);*/
 			
-			fprintf(ofp,"%d %s %d %d %d %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+			fprintf(ofp,"%d %s %d %d %d    %d %d %d\t\t",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
 						env->ir.m, env->pc, env->bp, env->sp);
 						
 			break;
@@ -291,14 +304,14 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 			break;
 		case 3:
 			//printf("\tR[");
-			fprintf(ofp,"\tR[");
+			fprintf(ofp,"\t\tR[");
 			
 			for(i=0;i<16;i++){
 				//printf("%d ",env->R[i]);
 				fprintf(ofp,"%d ",env->R[i]);
 			}
 			//printf("]\n");
-			fprintf(ofp,"]\n");
+			fprintf(ofp,"]\n\n");
 			break;
 	}
 }	
