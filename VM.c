@@ -75,7 +75,7 @@ void vm (char *fileName){
 	}
 
 	fprintf(ofp,"\nFactorial Op Printout:\n");
-	fprintf(ofp2,"\nFactorial Stack Trace:\nInital Values pc bp sp\n");
+	fprintf(ofp2,"\nFactorial Stack Trace:\nPC OP Rg Lx Vl [PC BP SP]\n");
 	fprintf(ofp3,"\nFactorial Output:\n");
 	
 	count = 0;
@@ -279,7 +279,7 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 			/*printf("%d %s %d %d %d\t %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
 						env->ir.m, env->pc, env->bp, env->sp);*/
 			
-			fprintf(ofp,"%d %s %d %d %d    %d %d %d    ",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+			fprintf(ofp,"%d %s %d %d %d    [%d %d %d]    ",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
 						env->ir.m, env->pc, env->bp, env->sp);
 						
 			break;
@@ -304,7 +304,7 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 			break;
 		case 3:
 			//printf("\tR[");
-			fprintf(ofp,"    R[");
+			fprintf(ofp,"    Registers:[");
 			
 			for(i=0;i<8;i++){
 				//printf("%d ",env->R[i]);

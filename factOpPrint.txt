@@ -1,0 +1,35 @@
+
+Factorial Op Printout:
+0 INC 0 0 6 
+1 LIT 0 0 3 
+2 STO 0 0 4 
+3 LIT 0 0 1 
+4 STO 0 0 5 
+5 CAL 0 0 7 
+6 INC 0 0 4 
+7 LOD 0 1 4 
+8 LOD 1 1 5 
+9 MUL 1 0 1 
+10 STO 1 1 5 
+11 LIT 1 0 1 
+12 SUB 0 0 1 
+13 STO 0 1 4 
+14 NEQ 0 0 1 
+15 JPC 0 0 18 
+16 CAL 0 1 7 
+17 INC 0 0 4 
+18 LOD 0 1 4 
+19 LOD 1 1 5 
+20 MUL 1 0 1 
+21 STO 1 1 5 
+22 LIT 1 0 1 
+23 SUB 0 0 1 
+24 STO 0 1 4 
+25 NEQ 0 0 1 
+26 JPC 0 0 18 
+27 RTN 0 0 0 
+28 RTN 0 0 0 
+29 JMP 0 0 19 
+30 LOD 0 0 5 
+31 SIO 0 0 1 
+32 SIO 0 0 3 
