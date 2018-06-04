@@ -1,3 +1,4 @@
+
 Factorial Op Printout:
 0 INC 0 0 6 
 1 LIT 0 0 3 
@@ -27,5 +28,5 @@ Factorial Op Printout:
 25 NEQ 0 0 1 
 26 JPC 0 0 18 
 27 LOD 0 0 5 
-28 SIO 0 0 1 
+28 SIO 5 0 1 
 29 SIO 0 0 3 

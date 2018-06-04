@@ -74,9 +74,9 @@ void vm (char *fileName){
 		return;
 	}
 
-	fprintf(ofp,"Factorial Op Printout:\n");
-	fprintf(ofp2,"Factorial Stack Trace:\n");
-	fprintf(ofp3,"Factorial Output:\n");
+	fprintf(ofp,"\nFactorial Op Printout:\n");
+	fprintf(ofp2,"\nFactorial Stack Trace:\nInital Values pc bp sp\n");
+	fprintf(ofp3,"\nFactorial Output:\n");
 	
 	count = 0;
 	while( fscanf(ifp, "%d %d %d %d",&buff[0],
@@ -279,7 +279,7 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 			/*printf("%d %s %d %d %d\t %d %d %d",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
 						env->ir.m, env->pc, env->bp, env->sp);*/
 			
-			fprintf(ofp,"%d %s %d %d %d    %d %d %d\t\t",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
+			fprintf(ofp,"%d %s %d %d %d    %d %d %d    ",env->pcPrev,opCode[env->ir.op],env->ir.r,env->ir.l,
 						env->ir.m, env->pc, env->bp, env->sp);
 						
 			break;
@@ -304,9 +304,9 @@ void printStack(int printValue,enviroment *env,int sp,int bp,int* stack,int l,FI
 			break;
 		case 3:
 			//printf("\tR[");
-			fprintf(ofp,"\t\tR[");
+			fprintf(ofp,"    R[");
 			
-			for(i=0;i<16;i++){
+			for(i=0;i<8;i++){
 				//printf("%d ",env->R[i]);
 				fprintf(ofp,"%d ",env->R[i]);
 			}
