@@ -113,9 +113,6 @@ void vm (char *fileName){
 	count = 0;
 	while (*halt != 1 ){
 		
-		if(count == 0){
-			//printf("Factorial Op Printout:\n");			
-		}
 		fetch(count, env, irList, ofp);
 		execute(env, stack, halt,ofp2,ofp3);
 		printStack(1,env,env->sp,env->bp,stack,env->ir.l,ofp2);
