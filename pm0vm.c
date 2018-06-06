@@ -60,6 +60,8 @@ void printStack(int printvalue,enviroment *env,int sp,int bp,int* stack,int l,FI
 
 int main(int argc, char **argv){
 	int i;
+	
+	// Gets the filename(s) from the command line when ran and passes it to vm().
 	for(i=1; i < argc; i++)
 	{
 			vm(argv[i]);
