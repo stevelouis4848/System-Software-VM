@@ -1,6 +1,7 @@
 // Name: Steve Louis
 // Class: COP 3402 summer 2018
 // Assignment: Homework #1 (P-Machine)
+// 06/05/2018
 
 /*
 README
@@ -38,7 +39,7 @@ typedef struct instruction{
 							int m; // M
 						}instruction;
 
-// Struct named enviroment that holds the information relevant to the instruction being currently execute.
+// Struct named environment that holds the information relevant to the instruction being currently execute.
 typedef struct enviroment{
 							int pc; // pc
 							int pcPrev; //previous pc
